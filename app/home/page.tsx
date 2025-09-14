@@ -1,6 +1,14 @@
 'use client'
 import React, { useState } from 'react';
+import Script from "next/script";
+
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
 import { ShoppingCart, Plus, Minus, CreditCard, ChefHat, ArrowLeft } from 'lucide-react';
+import { api } from '@/lib/config/axios';
 
 interface Ingredient {
   id: string;
@@ -34,67 +42,71 @@ const FoodDispensingSystem: React.FC = () => {
 
   // Sample food data with no base prices
   const foods: Food[] = [
-    {
-      id: '1',
-      name: 'Burger',
-      description: 'Customizable burger with your choice of ingredients',
-      image: '🍔',
-      ingredients: [
-        { id: 'beef', name: 'Beef Patty', price: 150, available: true, category: 'protein' },
-        { id: 'chicken', name: 'Chicken Patty', price: 120, available: true, category: 'protein' },
-        { id: 'cheese', name: 'Cheese Slice', price: 30, available: true, category: 'dairy' },
-        { id: 'lettuce', name: 'Lettuce', price: 10, available: true, category: 'vegetables' },
-        { id: 'tomato', name: 'Tomato', price: 15, available: true, category: 'vegetables' },
-        { id: 'onion', name: 'Onions', price: 10, available: false, category: 'vegetables' },
-        { id: 'bacon', name: 'Bacon', price: 40, available: true, category: 'protein' },
-        { id: 'bun', name: 'Burger Bun', price: 25, available: true, category: 'base' }
-      ]
-    },
-    {
-      id: '2',
-      name: 'Pizza',
-      description: 'Build your own pizza with fresh ingredients',
-      image: '🍕',
-      ingredients: [
-        { id: 'dough', name: 'Pizza Dough', price: 50, available: true, category: 'base' },
-        { id: 'sauce', name: 'Tomato Sauce', price: 25, available: true, category: 'sauce' },
-        { id: 'mozzarella', name: 'Mozzarella Cheese', price: 60, available: true, category: 'dairy' },
-        { id: 'pepperoni', name: 'Pepperoni', price: 70, available: true, category: 'protein' },
-        { id: 'mushrooms', name: 'Mushrooms', price: 20, available: true, category: 'vegetables' },
-        { id: 'basil', name: 'Fresh Basil', price: 15, available: true, category: 'herbs' },
-        { id: 'olives', name: 'Olives', price: 30, available: true, category: 'vegetables' }
-      ]
-    },
-    {
-      id: '3',
-      name: 'Salad',
-      description: 'Fresh salad with your preferred ingredients',
-      image: '🥗',
-      ingredients: [
-        { id: 'lettuce_base', name: 'Lettuce Base', price: 30, available: true, category: 'base' },
-        { id: 'spinach', name: 'Spinach', price: 25, available: true, category: 'vegetables' },
-        { id: 'tomato_cherry', name: 'Cherry Tomatoes', price: 20, available: true, category: 'vegetables' },
-        { id: 'cucumber', name: 'Cucumber', price: 15, available: true, category: 'vegetables' },
-        { id: 'chicken_grilled', name: 'Grilled Chicken', price: 80, available: true, category: 'protein' },
-        { id: 'feta', name: 'Feta Cheese', price: 45, available: true, category: 'dairy' },
-        { id: 'dressing', name: 'Dressing', price: 20, available: true, category: 'sauce' }
-      ]
-    },
-    {
-      id: '4',
-      name: 'Sandwich',
-      description: 'Custom sandwich with quality ingredients',
-      image: '🥪',
-      ingredients: [
-        { id: 'bread', name: 'Bread Slices', price: 20, available: true, category: 'base' },
-        { id: 'turkey', name: 'Turkey Slices', price: 60, available: true, category: 'protein' },
-        { id: 'ham', name: 'Ham', price: 55, available: true, category: 'protein' },
-        { id: 'swiss', name: 'Swiss Cheese', price: 35, available: true, category: 'dairy' },
-        { id: 'lettuce_leaf', name: 'Lettuce Leaves', price: 10, available: true, category: 'vegetables' },
-        { id: 'mayo', name: 'Mayonnaise', price: 15, available: true, category: 'sauce' }
-      ]
-    }
-  ];
+  {
+    id: '1',
+    name: 'Tomato Rice',
+    description: 'Rice cooked with tomato puree and spices',
+    image: '🍚',
+    ingredients: [
+      { id: 'rice', name: 'Rice', price: 40, available: true, category: 'base' },
+      { id: 'tomato_puree', name: 'Tomato Puree', price: 20, available: true, category: 'sauce' },
+      { id: 'onion_powder', name: 'Onion Powder', price: 15, available: true, category: 'spice' },
+      { id: 'ginger_garlic', name: 'Ginger-Garlic Paste', price: 20, available: true, category: 'spice' },
+      { id: 'chili_powder', name: 'Chili Powder', price: 10, available: true, category: 'spice' },
+      { id: 'garam_masala', name: 'Garam Masala', price: 15, available: true, category: 'spice' },
+      { id: 'salt', name: 'Salt', price: 5, available: true, category: 'spice' },
+      { id: 'oil', name: 'Cooking Oil', price: 15, available: true, category: 'oil' }
+    ]
+  },
+  {
+    id: '2',
+    name: 'Dal Tadka',
+    description: 'Lentils cooked with spices and oil',
+    image: '🥘',
+    ingredients: [
+      { id: 'toor_dal', name: 'Toor Dal', price: 50, available: true, category: 'protein' },
+      { id: 'turmeric', name: 'Turmeric Powder', price: 10, available: true, category: 'spice' },
+      { id: 'chili_powder', name: 'Chili Powder', price: 10, available: true, category: 'spice' },
+      { id: 'salt', name: 'Salt', price: 5, available: true, category: 'spice' },
+      { id: 'oil', name: 'Cooking Oil', price: 15, available: true, category: 'oil' },
+      { id: 'onion_powder', name: 'Onion Powder', price: 15, available: true, category: 'spice' },
+      { id: 'tomato_puree', name: 'Tomato Puree', price: 20, available: true, category: 'sauce' }
+    ]
+  },
+  {
+    id: '3',
+    name: 'Chapati with Curry',
+    description: 'Whole wheat chapati served with spicy curry',
+    image: '🥙',
+    ingredients: [
+      // Chapati
+      { id: 'wheat_flour', name: 'Wheat Flour', price: 30, available: true, category: 'base' },
+      { id: 'salt', name: 'Salt', price: 5, available: true, category: 'spice' },
+      { id: 'oil', name: 'Cooking Oil', price: 15, available: true, category: 'oil' },
+
+      // Curry
+      { id: 'tomato_puree', name: 'Tomato Puree', price: 20, available: true, category: 'sauce' },
+      { id: 'onion_powder', name: 'Onion Powder', price: 15, available: true, category: 'spice' },
+      { id: 'garam_masala', name: 'Garam Masala', price: 15, available: true, category: 'spice' },
+      { id: 'ginger_garlic', name: 'Ginger-Garlic Paste', price: 20, available: true, category: 'spice' },
+      { id: 'chili_powder', name: 'Chili Powder', price: 10, available: true, category: 'spice' }
+    ]
+  },
+  {
+    id: '4',
+    name: 'Sweet Pongal',
+    description: 'South Indian sweet dish with rice, sugar, and ghee',
+    image: '🍯',
+    ingredients: [
+      { id: 'rice', name: 'Rice', price: 40, available: true, category: 'base' },
+      { id: 'sugar', name: 'Sugar', price: 20, available: true, category: 'sweetener' },
+      { id: 'oil_ghee', name: 'Ghee / Cooking Oil', price: 25, available: true, category: 'oil' },
+      { id: 'garam_masala', name: 'Cardamom (using Garam Masala)', price: 15, available: true, category: 'spice' },
+      { id: 'salt', name: 'Salt', price: 5, available: true, category: 'spice' }
+    ]
+  }
+];
+
 
   const handleIngredientToggle = (ingredientId: string) => {
     setSelectedIngredients(prev =>
@@ -168,24 +180,10 @@ const FoodDispensingSystem: React.FC = () => {
   };
 
   const processRazorpayPayment = () => {
-    const options = {
-      key: 'your_razorpay_key',
-      amount: getTotalCartValue() * 100,
-      currency: 'INR',
-      name: 'Food Dispensing System',
-      description: 'Food Order Payment',
-      handler: () => {
-        // console.log('Payment successful:', response);
-        setCart([]);
-        setShowPayment(false);
-        alert('Payment successful! Your order is being prepared.');
-      }
-    };
-    
-    // console.log('Payment processed with options:', options);
+    startPayment()
     setCart([]);
     setShowPayment(false);
-    alert('Payment successful! Your order is being prepared.');
+    
   };
 
   const groupIngredientsByCategory = (ingredients: Ingredient[]) => {
@@ -198,6 +196,52 @@ const FoodDispensingSystem: React.FC = () => {
       return groups;
     }, {} as Record<string, Ingredient[]>);
   };
+
+  const startPayment=async()=>
+  {
+    
+      
+    const order= await api.post("create-order",{
+      amount:getTotalCartValue()
+    })
+    console.log(order)
+    // 2. Open Razorpay Checkout
+    const options = {
+      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID, // public key
+      amount: order?.data?.data?.amount,
+      currency: order?.data?.data?.currency,
+      name: "Laridae",
+      description: "Tea order",
+      order_id: order?.data?.data?.id,
+      handler: async function (response: any,order_id:string) {
+        // 3. Verify payment on backend
+        
+        const verify= await api.post("/verify-payment",{
+          razorpay_order_id: response.razorpay_order_id,
+                       razorpay_payment_id: response.razorpay_payment_id,
+                       razorpay_signature: response.razorpay_signature,
+        })
+        console.log(verify)
+        if (verify?.data?.success) {
+          alert("Order Placed Successfullt")
+         
+        } else {
+          alert("❌ Payment verification failed")
+        }
+      },
+      prefill: {
+        name: "Shyam",
+        email: "shyam@example.com",
+        contact: "9876543210",
+      },
+      theme: {
+        color: "#3399cc",
+      },
+    };
+
+    const rzp1 = new window.Razorpay(options);
+    rzp1.open();
+  }
 
   return (
     <div className="min-h-screen bg-white text-black">
@@ -391,7 +435,7 @@ const FoodDispensingSystem: React.FC = () => {
           </div>
         )}
       </div>
-
+         <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="afterInteractive" />
       {/* Payment Modal */}
       {showPayment && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
