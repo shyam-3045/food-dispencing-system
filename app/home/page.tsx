@@ -223,7 +223,12 @@ const FoodDispensingSystem: React.FC = () => {
         })
         console.log(verify)
         if (verify?.data?.success) {
-          alert("Order Placed Successfullt")
+          alert("Order Placed Successfully")
+          const res = await fetch("/api/sendServos", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(cart[0]),
+      });
          
         } else {
           alert("❌ Payment verification failed")

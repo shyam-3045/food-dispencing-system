@@ -1,33 +1,50 @@
 "use client";
-import { api } from "@/lib/config/axios";
+
 import { useState } from "react";
 
-export default function MotorControl() {
-  const [status, setStatus] = useState("OFF");
+export default function Home() {
+  const [status, setStatus] = useState("");
 
-  const toggleMotor = async (state: "on" | "off") => {
-    const res = await api.get(`http://<ESP32_IP>/motor/${state}`);
-    console.log(res)
-    if (res?.data) {
-      setStatus(state.toUpperCase());
+  const moveServo = async (servo: number, angle: number) => {
+    try {
+      const res = await fetch("/api/sendServos", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          servo1: servo === 1 ? angle : 90,
+          servo2: servo === 2 ? angle : 90,
+          servo3: servo === 3 ? angle : 90,
+          servo4: servo === 4 ? angle : 90,
+        }),
+      });
+
+      const data = await res.json();
+      setStatus(`Servo ${servo} moved to ${angle}° | Entry ID: ${data.entryId}`);
+    } catch (err) {
+      setStatus(`Error: ${(err as Error).message}`);
     }
   };
 
+  const angles = [0, 45, 90, 135, 180];
+
   return (
-    <div className="p-4">
-      <h1 className="text-xl">Motor Status: {status}</h1>
-      <button
-        className="bg-green-500 text-white p-2 m-2 rounded"
-        onClick={() => toggleMotor("on")}
-      >
-        Turn ON
-      </button>
-      <button
-        className="bg-red-500 text-white p-2 m-2 rounded"
-        onClick={() => toggleMotor("off")}
-      >
-        Turn OFF
-      </button>
+    <div style={{ padding: 20 }}>
+      <h1>Live Servo Control</h1>
+      {[1, 2, 3, 4].map((servo) => (
+        <div key={servo} style={{ marginBottom: 10 }}>
+          <h3>Servo {servo}</h3>
+          {angles.map((angle) => (
+            <button
+              key={angle}
+              onClick={() => moveServo(servo, angle)}
+              style={{ marginRight: 5 }}
+            >
+              {angle}°
+            </button>
+          ))}
+        </div>
+      ))}
+      <p>{status}</p>
     </div>
   );
 }
