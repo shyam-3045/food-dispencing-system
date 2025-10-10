@@ -23,7 +23,7 @@ const eslintConfig = [
   {
     rules: {
       "@typescript-eslint/no-explicit-any": "off",
-      "no-unused-vars": "off",
+      "no-unused-vars": "on",
       "react/react-in-jsx-scope": "off",
     },
   },

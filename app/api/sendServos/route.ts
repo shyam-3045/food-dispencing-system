@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
     const { quantity, selectedIngredients } = body;
 
     // Prepare servo angles (max 4 servos)
-    let angles = [0, 0, 0, 0]; // default 0
+    const angles = [0, 0, 0, 0]; // default 0
     for (let i = 0; i < Math.min(4, selectedIngredients.length); i++) {
       angles[i] = quantityToAngle(quantity);
     }
