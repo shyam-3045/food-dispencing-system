@@ -1,5 +1,5 @@
-'use client'
-import React, { useState } from 'react';
+"use client";
+import React, { useState } from "react";
 import Script from "next/script";
 
 declare global {
@@ -8,9 +8,16 @@ declare global {
   }
 }
 
-import { ShoppingCart, Plus, Minus, CreditCard, ChefHat, ArrowLeft } from 'lucide-react';
-import { api } from '@/lib/config/axios';
-import axios from 'axios';
+import {
+  ShoppingCart,
+  Plus,
+  Minus,
+  CreditCard,
+  ChefHat,
+  ArrowLeft,
+} from "lucide-react";
+import { api } from "@/lib/config/axios";
+import axios from "axios";
 
 interface Ingredient {
   id: string;
@@ -37,14 +44,19 @@ interface CartItem {
 }
 
 const INGREDIENTS: Ingredient[] = [
-  { id: "ing1", name: "Rice",   price: 40, available: true, category: "base" },
-  { id: "ing2", name: "Tomato sachet", price: 20, available: true, category: "veg" },
-  { id: "ing3", name: "Onion",  price: 15, available: true, category: "veg" },
-  { id: "ing4", name: "Oil",    price: 10, available: true, category: "oil" },
-  { id: "ing5", name: "Dal",    price: 35, available: true, category: "protein" },
+  { id: "ing1", name: "Rice", price: 40, available: true, category: "base" },
+  {
+    id: "ing2",
+    name: "Tomato sachet",
+    price: 20,
+    available: true,
+    category: "veg",
+  },
+  { id: "ing3", name: "Onion", price: 15, available: true, category: "veg" },
+  { id: "ing4", name: "Oil", price: 10, available: true, category: "oil" },
+  { id: "ing5", name: "Dal", price: 35, available: true, category: "protein" },
   { id: "ing6", name: "Spices", price: 10, available: true, category: "spice" },
 ];
-
 
 const ingredientMotorMap: Record<string, number> = {
   ing1: 0,
@@ -52,16 +64,14 @@ const ingredientMotorMap: Record<string, number> = {
   ing3: 2,
   ing4: 3,
   ing5: 4,
-  ing6: 5
+  ing6: 5,
 };
 
 const FoodDispensingSystem: React.FC = () => {
-
   const [selectedFood, setSelectedFood] = useState<Food | null>(null);
   const [selectedIngredients, setSelectedIngredients] = useState<string[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [showPayment, setShowPayment] = useState(false);
-
 
   const foods: Food[] = [
     {
@@ -69,51 +79,51 @@ const FoodDispensingSystem: React.FC = () => {
       name: "Tomato Rice",
       description: "Rice with tomato and spices",
       image: "🍅",
-      ingredients: INGREDIENTS.filter(i =>
-        ["ing1", "ing2", "ing4", "ing6"].includes(i.id)
-      )
+      ingredients: INGREDIENTS.filter((i) =>
+        ["ing1", "ing2", "ing4", "ing6"].includes(i.id),
+      ),
     },
     {
       id: "2",
       name: "Dal Rice",
       description: "Dal served with rice",
       image: "🍛",
-      ingredients: INGREDIENTS.filter(i =>
-        ["ing1", "ing5", "ing4", "ing6"].includes(i.id)
-      )
+      ingredients: INGREDIENTS.filter((i) =>
+        ["ing1", "ing5", "ing4", "ing6"].includes(i.id),
+      ),
     },
     {
       id: "3",
       name: "Veg Rice",
       description: "Rice with onion and tomato",
       image: "🥗",
-      ingredients: INGREDIENTS.filter(i =>
-        ["ing1", "ing2", "ing3", "ing4", "ing6"].includes(i.id)
-      )
+      ingredients: INGREDIENTS.filter((i) =>
+        ["ing1", "ing2", "ing3", "ing4", "ing6"].includes(i.id),
+      ),
     },
     {
       id: "4",
       name: "Plain Dal",
       description: "Dal with spices",
       image: "🥣",
-      ingredients: INGREDIENTS.filter(i =>
-        ["ing5", "ing4", "ing6"].includes(i.id)
-      )
-    }
+      ingredients: INGREDIENTS.filter((i) =>
+        ["ing5", "ing4", "ing6"].includes(i.id),
+      ),
+    },
   ];
 
   const handleIngredientToggle = (ingredientId: string) => {
-    setSelectedIngredients(prev =>
+    setSelectedIngredients((prev) =>
       prev.includes(ingredientId)
-        ? prev.filter(id => id !== ingredientId)
-        : [...prev, ingredientId]
+        ? prev.filter((id) => id !== ingredientId)
+        : [...prev, ingredientId],
     );
   };
 
   const calculateTotalPrice = () => {
     if (!selectedFood) return 0;
     return selectedIngredients.reduce((sum, id) => {
-      const ingredient = selectedFood.ingredients.find(ing => ing.id === id);
+      const ingredient = selectedFood.ingredients.find((ing) => ing.id === id);
       return sum + (ingredient?.price || 0);
     }, 0);
   };
@@ -121,12 +131,12 @@ const FoodDispensingSystem: React.FC = () => {
   const addToCart = () => {
     if (!selectedFood || selectedIngredients.length === 0) return;
 
-    const selectedIngredientsData = selectedIngredients.map(id => {
-      const ingredient = selectedFood.ingredients.find(ing => ing.id === id)!;
+    const selectedIngredientsData = selectedIngredients.map((id) => {
+      const ingredient = selectedFood.ingredients.find((ing) => ing.id === id)!;
       return {
         id: ingredient.id,
         name: ingredient.name,
-        price: ingredient.price
+        price: ingredient.price,
       };
     });
 
@@ -135,16 +145,16 @@ const FoodDispensingSystem: React.FC = () => {
       foodName: selectedFood.name,
       selectedIngredients: selectedIngredientsData,
       quantity: 1,
-      totalPrice: calculateTotalPrice()
+      totalPrice: calculateTotalPrice(),
     };
 
-    setCart(prev => [...prev, cartItem]);
+    setCart((prev) => [...prev, cartItem]);
     setSelectedFood(null);
     setSelectedIngredients([]);
   };
 
   const removeFromCart = (index: number) => {
-    setCart(prev => prev.filter((_, i) => i !== index));
+    setCart((prev) => prev.filter((_, i) => i !== index));
   };
 
   const updateQuantity = (index: number, newQuantity: number) => {
@@ -153,9 +163,11 @@ const FoodDispensingSystem: React.FC = () => {
       return;
     }
 
-    setCart(prev => prev.map((item, i) =>
-      i === index ? { ...item, quantity: newQuantity } : item
-    ));
+    setCart((prev) =>
+      prev.map((item, i) =>
+        i === index ? { ...item, quantity: newQuantity } : item,
+      ),
+    );
   };
 
   const getTotalCartValue = () => {
@@ -172,37 +184,49 @@ const FoodDispensingSystem: React.FC = () => {
   };
 
   const groupIngredientsByCategory = (ingredients: Ingredient[]) => {
-    return ingredients.reduce((groups, ingredient) => {
-      const category = ingredient.category;
-      if (!groups[category]) groups[category] = [];
-      groups[category].push(ingredient);
-      return groups;
-    }, {} as Record<string, Ingredient[]>);
+    return ingredients.reduce(
+      (groups, ingredient) => {
+        const category = ingredient.category;
+        if (!groups[category]) groups[category] = [];
+        groups[category].push(ingredient);
+        return groups;
+      },
+      {} as Record<string, Ingredient[]>,
+    );
   };
 
-
   const triggerMotors = async () => {
+    const motorCounts: Record<string, number> = {};
 
-    const motors = new Set<number>();
-
-    cart.forEach(item => {
-      item.selectedIngredients.forEach(ing => {
+    cart.forEach((item) => {
+      item.selectedIngredients.forEach((ing) => {
         const motor = ingredientMotorMap[ing.id];
-        if (motor !== undefined) motors.add(motor);
+        if (motor === undefined) return;
+
+        const key = String(motor);
+
+        motorCounts[key] = (motorCounts[key] || 0) + item.quantity;
       });
     });
 
-    for (const motor of motors) {
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL_BACKEND}/run?motor=${motor}`, {
-  mode: "no-cors"
-});
-    }
+    const payload = {
+      motors: motorCounts,
+    };
+
+    console.log("Motor payload =>", payload);
+
+    await fetch(`${process.env.NEXT_PUBLIC_API_URL_BACKEND}/run`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
   };
 
   const startPayment = async () => {
-
     const order = await api.post("create-order", {
-      amount: getTotalCartValue()
+      amount: getTotalCartValue(),
     });
 
     const options = {
@@ -214,7 +238,6 @@ const FoodDispensingSystem: React.FC = () => {
       order_id: order?.data?.data?.id,
 
       handler: async function (response: any) {
-
         const verify = await api.post("verify-payment", {
           razorpay_order_id: response.razorpay_order_id,
           razorpay_payment_id: response.razorpay_payment_id,
@@ -222,12 +245,10 @@ const FoodDispensingSystem: React.FC = () => {
         });
 
         if (verify?.data?.success) {
-
           await triggerMotors();
 
           alert("Order Placed Successfully");
           setCart([]);
-
         } else {
           alert("❌ Payment verification failed");
         }
@@ -277,7 +298,8 @@ const FoodDispensingSystem: React.FC = () => {
             <div className="text-center mb-12">
               <h2 className="text-4xl font-bold mb-4">Select Your Food</h2>
               <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                Choose a food item and customize it with your preferred ingredients
+                Choose a food item and customize it with your preferred
+                ingredients
               </p>
             </div>
 
@@ -301,27 +323,38 @@ const FoodDispensingSystem: React.FC = () => {
 
                 <div className="space-y-4">
                   {cart.map((item, index) => (
-                    <div key={index} className="flex justify-between items-center p-4 bg-white rounded border">
+                    <div
+                      key={index}
+                      className="flex justify-between items-center p-4 bg-white rounded border"
+                    >
                       <div className="flex-1">
                         <h4 className="font-bold">{item.foodName}</h4>
                         <p className="text-sm text-gray-600">
-                          {item.selectedIngredients.map(ing => ing.name).join(', ')}
+                          {item.selectedIngredients
+                            .map((ing) => ing.name)
+                            .join(", ")}
                         </p>
                         <p className="font-semibold">₹{item.totalPrice} each</p>
                       </div>
 
                       <div className="flex items-center space-x-3">
                         <button
-                          onClick={() => updateQuantity(index, item.quantity - 1)}
+                          onClick={() =>
+                            updateQuantity(index, item.quantity - 1)
+                          }
                           className="w-8 h-8 border border-gray-300 rounded flex items-center justify-center hover:bg-gray-100"
                         >
                           <Minus className="w-4 h-4" />
                         </button>
 
-                        <span className="w-8 text-center font-semibold">{item.quantity}</span>
+                        <span className="w-8 text-center font-semibold">
+                          {item.quantity}
+                        </span>
 
                         <button
-                          onClick={() => updateQuantity(index, item.quantity + 1)}
+                          onClick={() =>
+                            updateQuantity(index, item.quantity + 1)
+                          }
                           className="w-8 h-8 border border-gray-300 rounded flex items-center justify-center hover:bg-gray-100"
                         >
                           <Plus className="w-4 h-4" />
@@ -336,7 +369,9 @@ const FoodDispensingSystem: React.FC = () => {
                 </div>
 
                 <div className="flex justify-between items-center mt-6 pt-4 border-t-2">
-                  <span className="text-2xl font-bold">Total: ₹{getTotalCartValue()}</span>
+                  <span className="text-2xl font-bold">
+                    Total: ₹{getTotalCartValue()}
+                  </span>
                   <button
                     onClick={handlePayment}
                     className="bg-black text-white px-6 py-3 rounded hover:bg-gray-800 flex items-center space-x-2"
@@ -359,17 +394,23 @@ const FoodDispensingSystem: React.FC = () => {
             </button>
 
             <div className="grid lg:grid-cols-3 gap-8">
-
               <div className="lg:col-span-1">
                 <div className="border-2 border-gray-300 rounded-lg p-6 text-center sticky top-8">
-
                   <div className="text-8xl mb-4">{selectedFood.image}</div>
-                  <h2 className="text-3xl font-bold mb-3">{selectedFood.name}</h2>
-                  <p className="text-gray-600 mb-6">{selectedFood.description}</p>
+                  <h2 className="text-3xl font-bold mb-3">
+                    {selectedFood.name}
+                  </h2>
+                  <p className="text-gray-600 mb-6">
+                    {selectedFood.description}
+                  </p>
 
                   <div className="bg-gray-100 rounded-lg p-4 mb-6">
-                    <div className="text-sm text-gray-600 mb-2">Total Price</div>
-                    <div className="text-3xl font-bold">₹{calculateTotalPrice()}</div>
+                    <div className="text-sm text-gray-600 mb-2">
+                      Total Price
+                    </div>
+                    <div className="text-3xl font-bold">
+                      ₹{calculateTotalPrice()}
+                    </div>
                   </div>
 
                   <button
@@ -380,78 +421,93 @@ const FoodDispensingSystem: React.FC = () => {
                     <Plus className="w-5 h-5" />
                     <span>Add to Cart</span>
                   </button>
-
                 </div>
               </div>
 
               <div className="lg:col-span-2">
-                <h3 className="text-2xl font-bold mb-6">Customize Your {selectedFood.name}</h3>
+                <h3 className="text-2xl font-bold mb-6">
+                  Customize Your {selectedFood.name}
+                </h3>
 
-                {Object.entries(groupIngredientsByCategory(selectedFood.ingredients)).map(
-                  ([category, ingredients]) => (
-                    <div key={category} className="mb-8">
+                {Object.entries(
+                  groupIngredientsByCategory(selectedFood.ingredients),
+                ).map(([category, ingredients]) => (
+                  <div key={category} className="mb-8">
+                    <h4 className="text-lg font-semibold mb-4 capitalize border-b pb-2">
+                      {category}
+                    </h4>
 
-                      <h4 className="text-lg font-semibold mb-4 capitalize border-b pb-2">
-                        {category}
-                      </h4>
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      {ingredients.map((ingredient) => (
+                        <div
+                          key={ingredient.id}
+                          className={`relative p-4 rounded-lg border-2 cursor-pointer ${
+                            selectedIngredients.includes(ingredient.id)
+                              ? "border-black bg-gray-100"
+                              : "border-gray-300 hover:border-gray-500"
+                          }`}
+                          onClick={() => handleIngredientToggle(ingredient.id)}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <h5 className="font-semibold">
+                                {ingredient.name}
+                              </h5>
+                              <p className="text-sm text-gray-600">
+                                ₹{ingredient.price}
+                              </p>
+                            </div>
 
-                      <div className="grid sm:grid-cols-2 gap-4">
-                        {ingredients.map((ingredient) => (
-                          <div
-                            key={ingredient.id}
-                            className={`relative p-4 rounded-lg border-2 cursor-pointer ${
-                              selectedIngredients.includes(ingredient.id)
-                                ? 'border-black bg-gray-100'
-                                : 'border-gray-300 hover:border-gray-500'
-                            }`}
-                            onClick={() => handleIngredientToggle(ingredient.id)}
-                          >
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <h5 className="font-semibold">{ingredient.name}</h5>
-                                <p className="text-sm text-gray-600">₹{ingredient.price}</p>
-                              </div>
-
-                              <div className={`w-5 h-5 rounded-full border-2 ${
+                            <div
+                              className={`w-5 h-5 rounded-full border-2 ${
                                 selectedIngredients.includes(ingredient.id)
-                                  ? 'bg-black border-black'
-                                  : 'border-gray-400'
-                              }`}>
-                                {selectedIngredients.includes(ingredient.id) && (
-                                  <div className="w-full h-full rounded-full bg-white scale-50"></div>
-                                )}
-                              </div>
+                                  ? "bg-black border-black"
+                                  : "border-gray-400"
+                              }`}
+                            >
+                              {selectedIngredients.includes(ingredient.id) && (
+                                <div className="w-full h-full rounded-full bg-white scale-50"></div>
+                              )}
                             </div>
                           </div>
-                        ))}
-                      </div>
+                        </div>
+                      ))}
                     </div>
-                  )
-                )}
+                  </div>
+                ))}
               </div>
             </div>
           </div>
         )}
       </div>
 
-      <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="afterInteractive" />
+      <Script
+        src="https://checkout.razorpay.com/v1/checkout.js"
+        strategy="afterInteractive"
+      />
 
       {showPayment && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg border-2 border-gray-300 p-8 max-w-md w-full">
-
-            <h3 className="text-2xl font-bold mb-6 text-center">Complete Your Order</h3>
+            <h3 className="text-2xl font-bold mb-6 text-center">
+              Complete Your Order
+            </h3>
 
             <div className="space-y-3 mb-6">
               {cart.map((item, index) => (
-                <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded">
+                <div
+                  key={index}
+                  className="flex justify-between items-center p-3 bg-gray-50 rounded"
+                >
                   <div>
                     <div className="font-semibold">{item.foodName}</div>
                     <div className="text-sm text-gray-600">
                       Qty: {item.quantity} | ₹{item.totalPrice} each
                     </div>
                   </div>
-                  <div className="text-lg font-bold">₹{item.totalPrice * item.quantity}</div>
+                  <div className="text-lg font-bold">
+                    ₹{item.totalPrice * item.quantity}
+                  </div>
                 </div>
               ))}
             </div>
@@ -479,7 +535,6 @@ const FoodDispensingSystem: React.FC = () => {
                 <span>Pay with Razorpay</span>
               </button>
             </div>
-
           </div>
         </div>
       )}
