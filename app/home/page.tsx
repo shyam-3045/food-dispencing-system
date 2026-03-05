@@ -180,9 +180,9 @@ const FoodDispensingSystem: React.FC = () => {
   };
 
   const processRazorpayPayment =async () => {
-    //startPayment();
+    startPayment();
     setShowPayment(false);
-    await triggerMotors()
+    //await triggerMotors()
   };
 
   const groupIngredientsByCategory = (ingredients: Ingredient[]) => {
