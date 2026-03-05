@@ -176,11 +176,13 @@ const FoodDispensingSystem: React.FC = () => {
 
   const handlePayment = async () => {
     setShowPayment(true);
+    
   };
 
-  const processRazorpayPayment = () => {
-    startPayment();
+  const processRazorpayPayment =async () => {
+    //startPayment();
     setShowPayment(false);
+    await triggerMotors()
   };
 
   const groupIngredientsByCategory = (ingredients: Ingredient[]) => {
