@@ -44,18 +44,48 @@ interface CartItem {
 }
 
 const INGREDIENTS: Ingredient[] = [
-  { id: "ing1", name: "Rice", price: 40, available: true, category: "base" },
+  {
+    id: "ing1",
+    name: "Mutton",
+    price: 40,
+    available: true,
+    category: "protein",
+  },
   {
     id: "ing2",
-    name: "Tomato sachet",
+    name: "Coriander Powder",
     price: 20,
     available: true,
-    category: "veg",
+    category: "spice",
   },
-  { id: "ing3", name: "Onion", price: 15, available: true, category: "veg" },
-  { id: "ing4", name: "Oil", price: 10, available: true, category: "oil" },
-  { id: "ing5", name: "Dal", price: 35, available: true, category: "protein" },
-  { id: "ing6", name: "Spices", price: 10, available: true, category: "spice" },
+  {
+    id: "ing3",
+    name: "Garam Masala",
+    price: 15,
+    available: true,
+    category: "spice",
+  },
+  {
+    id: "ing4",
+    name: "Turmeric",
+    price: 10,
+    available: true,
+    category: "spice",
+  },
+  {
+    id: "ing5",
+    name: "Biryani Masala",
+    price: 35,
+    available: true,
+    category: "spice",
+  },
+  {
+    id: "ing6",
+    name: "Red Chilli Powder",
+    price: 10,
+    available: true,
+    category: "spice",
+  },
 ];
 
 const ingredientMotorMap: Record<string, number> = {
@@ -76,17 +106,17 @@ const FoodDispensingSystem: React.FC = () => {
   const foods: Food[] = [
     {
       id: "1",
-      name: "Tomato Rice",
-      description: "Rice with tomato and spices",
-      image: "🍅",
+      name: "Mutton Curry",
+      description: "Mutton cooked with coriander, turmeric and chilli",
+      image: "🍖",
       ingredients: INGREDIENTS.filter((i) =>
-        ["ing1", "ing2", "ing4", "ing6"].includes(i.id),
+        ["ing1", "ing2", "ing4", "ing6", "ing3"].includes(i.id),
       ),
     },
     {
       id: "2",
-      name: "Dal Rice",
-      description: "Dal served with rice",
+      name: "Mutton Biryani Masala",
+      description: "Mutton cooked with biryani masala spices",
       image: "🍛",
       ingredients: INGREDIENTS.filter((i) =>
         ["ing1", "ing5", "ing4", "ing6"].includes(i.id),
@@ -94,20 +124,11 @@ const FoodDispensingSystem: React.FC = () => {
     },
     {
       id: "3",
-      name: "Veg Rice",
-      description: "Rice with onion and tomato",
-      image: "🥗",
+      name: "Spicy Mutton Masala",
+      description: "Mutton with garam masala and chilli spices",
+      image: "🥘",
       ingredients: INGREDIENTS.filter((i) =>
-        ["ing1", "ing2", "ing3", "ing4", "ing6"].includes(i.id),
-      ),
-    },
-    {
-      id: "4",
-      name: "Plain Dal",
-      description: "Dal with spices",
-      image: "🥣",
-      ingredients: INGREDIENTS.filter((i) =>
-        ["ing5", "ing4", "ing6"].includes(i.id),
+        ["ing1", "ing3", "ing6", "ing2"].includes(i.id),
       ),
     },
   ];
@@ -176,13 +197,11 @@ const FoodDispensingSystem: React.FC = () => {
 
   const handlePayment = async () => {
     setShowPayment(true);
-    
   };
 
-  const processRazorpayPayment =async () => {
+  const processRazorpayPayment = async () => {
     startPayment();
     setShowPayment(false);
-    //await triggerMotors()
   };
 
   const groupIngredientsByCategory = (ingredients: Ingredient[]) => {
