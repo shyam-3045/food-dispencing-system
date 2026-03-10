@@ -8,7 +8,18 @@ declare global {
   }
 }
 
-import { ShoppingCart, Plus, Minus, CreditCard, ChefHat, ArrowLeft, X } from "lucide-react";
+import {
+  ShoppingCart,
+  Plus,
+  Minus,
+  CreditCard,
+  ChefHat,
+  ArrowLeft,
+  X,
+  AlertTriangle,
+  RefreshCw,
+  PackageX,
+} from "lucide-react";
 import { api } from "@/lib/config/axios";
 
 interface Ingredient {
@@ -24,7 +35,6 @@ interface Food {
   name: string;
   description: string;
   image: string;
-  tag: string;
   ingredients: Ingredient[];
 }
 
@@ -49,319 +59,81 @@ const ingredientMotorMap: Record<string, number> = {
   ing1: 0, ing2: 1, ing3: 2, ing4: 3, ing5: 4, ing6: 5,
 };
 
-const styles = `
-  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap');
-
-  .fds * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  .fds {
-    --cream: #FAF7F2;
-    --warm-white: #FFFDF9;
-    --charcoal: #1C1C1A;
-    --amber: #C8813A;
-    --amber-light: #E8A45A;
-    --sage: #6B7C5E;
-    --border: #E8E2D9;
-    --muted: #8A8278;
-    min-height: 100vh;
-    background: var(--cream);
-    font-family: 'DM Sans', sans-serif;
-    color: var(--charcoal);
-  }
-
-  /* ── HEADER ── */
-  .fds-header {
-    background: var(--charcoal);
-    padding: 0 40px;
-    height: 66px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-  .fds-logo { display: flex; align-items: center; gap: 10px; }
-  .fds-logo-icon {
-    width: 30px; height: 30px;
-    background: var(--amber);
-    border-radius: 7px;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .fds-logo-text {
-    font-family: 'Playfair Display', serif;
-    font-size: 17px; font-weight: 600; color: #fff; letter-spacing: 0.2px;
-  }
-  .fds-cart-pill {
-    display: flex; align-items: center; gap: 10px;
-    background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 100px; padding: 7px 16px 7px 10px;
-  }
-  .fds-cart-badge {
-    background: var(--amber); color: #fff;
-    font-size: 11px; font-weight: 700;
-    width: 20px; height: 20px;
-    border-radius: 50%; display: flex; align-items: center; justify-content: center;
-  }
-  .fds-cart-lbl { color: rgba(255,255,255,0.75); font-size: 13px; font-weight: 500; }
-  .fds-cart-amt { color: #fff; font-size: 14px; font-weight: 600; }
-
-  /* ── LAYOUT ── */
-  .fds-main { max-width: 1080px; margin: 0 auto; padding: 52px 24px 80px; }
-
-  /* ── MENU PAGE ── */
-  .fds-eyebrow {
-    font-size: 11px; font-weight: 700; letter-spacing: 2.5px;
-    text-transform: uppercase; color: var(--amber); margin-bottom: 10px;
-  }
-  .fds-h1 {
-    font-family: 'Playfair Display', serif;
-    font-size: 40px; font-weight: 700; line-height: 1.15;
-    color: var(--charcoal); margin-bottom: 10px;
-  }
-  .fds-subtitle { font-size: 15px; color: var(--muted); margin-bottom: 44px; }
-
-  .fds-food-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 18px; margin-bottom: 48px;
-  }
-  .fds-food-card {
-    background: var(--warm-white);
-    border: 1px solid var(--border);
-    border-radius: 18px; padding: 28px 22px;
-    cursor: pointer; transition: all 0.22s ease;
-    position: relative; overflow: hidden;
-  }
-  .fds-food-card:hover {
-    border-color: var(--amber);
-    box-shadow: 0 10px 40px rgba(28,28,26,0.11);
-    transform: translateY(-3px);
-  }
-  .fds-food-emoji { font-size: 44px; display: block; margin-bottom: 14px; }
-  .fds-food-tag {
-    display: inline-block; font-size: 10px; font-weight: 700;
-    letter-spacing: 1.5px; text-transform: uppercase;
-    color: var(--amber); background: rgba(200,129,58,0.1);
-    border-radius: 4px; padding: 3px 8px; margin-bottom: 10px;
-  }
-  .fds-food-name {
-    font-family: 'Playfair Display', serif;
-    font-size: 19px; font-weight: 600; margin-bottom: 7px;
-  }
-  .fds-food-desc { font-size: 13px; color: var(--muted); line-height: 1.55; margin-bottom: 18px; }
-  .fds-food-cta {
-    font-size: 12px; font-weight: 600; color: var(--charcoal);
-    opacity: 0; transition: opacity 0.2s; display: flex; align-items: center; gap: 4px;
-  }
-  .fds-food-card:hover .fds-food-cta { opacity: 1; }
-
-  /* ── CART BLOCK ── */
-  .fds-cart-block {
-    background: var(--warm-white); border: 1px solid var(--border); border-radius: 20px; overflow: hidden;
-  }
-  .fds-cart-block-hdr {
-    padding: 20px 26px; border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .fds-cart-block-title { font-family: 'Playfair Display', serif; font-size: 19px; font-weight: 600; }
-  .fds-cart-block-count { font-size: 13px; color: var(--muted); }
-  .fds-cart-rows { padding: 8px 26px; }
-  .fds-cart-row {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 14px 0; border-bottom: 1px solid var(--border);
-  }
-  .fds-cart-row:last-child { border-bottom: none; }
-  .fds-cart-row-name { font-size: 15px; font-weight: 500; margin-bottom: 3px; }
-  .fds-cart-row-ings { font-size: 12px; color: var(--muted); margin-bottom: 2px; }
-  .fds-cart-row-unit { font-size: 12px; color: var(--amber); font-weight: 500; }
-  .fds-qty-wrap { display: flex; align-items: center; gap: 10px; }
-  .fds-qty-btn {
-    width: 30px; height: 30px; border: 1px solid var(--border);
-    background: #fff; border-radius: 8px; display: flex; align-items: center;
-    justify-content: center; cursor: pointer; transition: all 0.15s; color: var(--charcoal);
-  }
-  .fds-qty-btn:hover { background: var(--charcoal); border-color: var(--charcoal); color: #fff; }
-  .fds-qty-num { font-size: 14px; font-weight: 600; width: 22px; text-align: center; }
-  .fds-row-total { font-size: 15px; font-weight: 600; min-width: 68px; text-align: right; }
-  .fds-cart-block-ftr {
-    padding: 20px 26px; border-top: 1px solid var(--border); background: var(--cream);
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .fds-total-lbl { font-size: 12px; color: var(--muted); margin-bottom: 3px; letter-spacing: 0.3px; }
-  .fds-total-amt { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 700; }
-
-  /* ── BUTTONS ── */
-  .fds-btn-dark {
-    background: var(--charcoal); color: #fff; border: none;
-    border-radius: 10px; padding: 12px 22px;
-    font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600;
-    cursor: pointer; display: flex; align-items: center; gap: 8px;
-    transition: all 0.18s; letter-spacing: 0.15px;
-  }
-  .fds-btn-dark:hover { background: #2c2c2a; transform: translateY(-1px); box-shadow: 0 4px 18px rgba(28,28,26,0.2); }
-  .fds-btn-dark:disabled { background: #C5C0B8; cursor: not-allowed; transform: none; box-shadow: none; }
-
-  .fds-btn-amber {
-    background: var(--amber); color: #fff; border: none;
-    border-radius: 10px; padding: 12px 22px;
-    font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600;
-    cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.18s;
-  }
-  .fds-btn-amber:hover { background: var(--amber-light); transform: translateY(-1px); }
-
-  .fds-btn-ghost {
-    background: transparent; color: var(--charcoal);
-    border: 1px solid var(--border); border-radius: 10px;
-    padding: 9px 16px;
-    font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
-    cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.18s;
-  }
-  .fds-btn-ghost:hover { border-color: var(--charcoal); background: var(--charcoal); color: #fff; }
-
-  /* ── CUSTOMIZE PAGE ── */
-  .fds-cust-layout {
-    display: grid; grid-template-columns: 280px 1fr; gap: 32px; align-items: start;
-  }
-  .fds-sidebar {
-    background: var(--warm-white); border: 1px solid var(--border);
-    border-radius: 20px; padding: 26px; position: sticky; top: 82px;
-  }
-  .fds-sb-emoji { font-size: 52px; display: block; margin-bottom: 14px; }
-  .fds-sb-title { font-family: 'Playfair Display', serif; font-size: 21px; font-weight: 700; margin-bottom: 6px; }
-  .fds-sb-desc { font-size: 13px; color: var(--muted); line-height: 1.5; margin-bottom: 20px; }
-  .fds-price-box {
-    background: var(--cream); border: 1px solid var(--border);
-    border-radius: 12px; padding: 14px 16px; margin-bottom: 18px;
-  }
-  .fds-price-lbl { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 3px; }
-  .fds-price-val { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; }
-  .fds-hint { font-size: 12px; color: var(--muted); text-align: center; margin-bottom: 14px; line-height: 1.55; }
-
-  /* ── INGREDIENT CARDS ── */
-  .fds-cat-lbl {
-    font-size: 10px; font-weight: 700; letter-spacing: 2px;
-    text-transform: uppercase; color: var(--muted);
-    margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
-  }
-  .fds-ing-grid {
-    display: grid; grid-template-columns: repeat(2, 1fr); gap: 11px; margin-bottom: 28px;
-  }
-  .fds-ing-card {
-    background: var(--warm-white); border: 1.5px solid var(--border);
-    border-radius: 14px; padding: 15px; cursor: pointer;
-    transition: all 0.18s; user-select: none;
-  }
-  .fds-ing-card:hover { border-color: rgba(200,129,58,0.5); box-shadow: 0 2px 14px rgba(200,129,58,0.09); }
-  .fds-ing-card.sel { border-color: var(--amber); background: #FDF6EE; box-shadow: 0 0 0 3px rgba(200,129,58,0.09); }
-  .fds-ing-card.max { border-color: var(--charcoal); background: #F4EFE8; }
-  .fds-ing-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 6px; }
-  .fds-ing-name { font-size: 14px; font-weight: 600; line-height: 1.3; }
-  .fds-ing-bubble {
-    min-width: 24px; height: 24px; border-radius: 50%;
-    border: 1.5px solid var(--border); background: #fff;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 11px; font-weight: 700; color: var(--muted);
-    transition: all 0.18s; flex-shrink: 0;
-  }
-  .fds-ing-card.sel .fds-ing-bubble { background: var(--amber); border-color: var(--amber); color: #fff; }
-  .fds-ing-card.max .fds-ing-bubble { background: var(--charcoal); border-color: var(--charcoal); color: #fff; }
-  .fds-ing-price { font-size: 12px; color: var(--muted); }
-  .fds-ing-status { font-size: 11px; font-weight: 500; margin-top: 5px; color: var(--amber); }
-  .fds-ing-card.max .fds-ing-status { color: var(--sage); }
-
-  /* ── MODAL ── */
-  .fds-overlay {
-    position: fixed; inset: 0; background: rgba(28,28,26,0.55);
-    backdrop-filter: blur(5px); display: flex; align-items: center;
-    justify-content: center; z-index: 200; padding: 20px;
-  }
-  .fds-modal {
-    background: var(--warm-white); border-radius: 22px; padding: 34px;
-    max-width: 420px; width: 100%;
-    box-shadow: 0 24px 80px rgba(28,28,26,0.22);
-  }
-  .fds-modal-hdr {
-    display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px;
-  }
-  .fds-modal-title { font-family: 'Playfair Display', serif; font-size: 21px; font-weight: 700; }
-  .fds-modal-close {
-    width: 30px; height: 30px; border-radius: 8px;
-    border: 1px solid var(--border); background: #fff;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; color: var(--muted); transition: all 0.15s;
-  }
-  .fds-modal-close:hover { border-color: var(--charcoal); color: var(--charcoal); }
-  .fds-modal-row {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 11px 0; border-bottom: 1px solid var(--border);
-  }
-  .fds-modal-row:last-child { border-bottom: none; }
-  .fds-modal-row-name { font-size: 14px; font-weight: 500; margin-bottom: 2px; }
-  .fds-modal-row-sub { font-size: 12px; color: var(--muted); }
-  .fds-modal-row-price { font-size: 15px; font-weight: 600; }
-  .fds-modal-divider { height: 1px; background: var(--border); margin: 14px 0; }
-  .fds-modal-total {
-    display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px;
-  }
-  .fds-modal-total-lbl { font-size: 13px; color: var(--muted); }
-  .fds-modal-total-amt { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 700; }
-  .fds-modal-actions { display: flex; gap: 10px; }
-  .fds-btn-outline {
-    flex: 1; background: var(--cream); border: 1px solid var(--border);
-    border-radius: 10px; padding: 12px;
-    font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500;
-    cursor: pointer; color: var(--charcoal); transition: border-color 0.15s;
-  }
-  .fds-btn-outline:hover { border-color: var(--charcoal); }
-
-  @media (max-width: 768px) {
-    .fds-food-grid { grid-template-columns: 1fr; }
-    .fds-cust-layout { grid-template-columns: 1fr; }
-    .fds-sidebar { position: static; }
-    .fds-main { padding: 28px 16px 60px; }
-    .fds-header { padding: 0 18px; }
-    .fds-h1 { font-size: 28px; }
-  }
-`;
-
 const FoodDispensingSystem: React.FC = () => {
   const [selectedFood, setSelectedFood] = useState<Food | null>(null);
   const [selectedIngredients, setSelectedIngredients] = useState<Record<string, number>>({});
   const [cart, setCart] = useState<CartItem[]>([]);
   const [showPayment, setShowPayment] = useState(false);
 
+  // Stock: each ingredient starts with 2 packets available
+  const [stock, setStock] = useState<Record<string, number>>(
+    Object.fromEntries(INGREDIENTS.map((i) => [i.id, 2]))
+  );
+
+  // Refill popup state
+  const [refillTarget, setRefillTarget] = useState<Ingredient | null>(null);
+
   const foods: Food[] = [
     {
-      id: "1", name: "Mutton Curry", tag: "Classic",
-      description: "Slow-cooked with coriander, turmeric and a touch of chilli",
+      id: "1",
+      name: "Mutton Curry",
+      description: "Mutton cooked with coriander, turmeric and chilli",
       image: "🍖",
       ingredients: INGREDIENTS.filter((i) => ["ing1", "ing2", "ing4", "ing6", "ing3"].includes(i.id)),
     },
     {
-      id: "2", name: "Mutton Biryani", tag: "Bestseller",
-      description: "Fragrant biryani masala with hand-picked whole spices",
+      id: "2",
+      name: "Mutton Biryani Masala",
+      description: "Mutton cooked with biryani masala spices",
       image: "🍛",
       ingredients: INGREDIENTS.filter((i) => ["ing1", "ing5", "ing4", "ing6"].includes(i.id)),
     },
     {
-      id: "3", name: "Spicy Masala", tag: "Spicy",
-      description: "Bold garam masala and chilli for the heat seekers",
+      id: "3",
+      name: "Spicy Mutton Masala",
+      description: "Mutton with garam masala and chilli spices",
       image: "🥘",
       ingredients: INGREDIENTS.filter((i) => ["ing1", "ing3", "ing6", "ing2"].includes(i.id)),
     },
   ];
 
-  const handleIngredientToggle = (ingredientId: string, ingredientName: string) => {
+  const handleIngredientToggle = (ingredient: Ingredient) => {
+    const currentQty = selectedIngredients[ingredient.id] || 0;
+    const availableStock = stock[ingredient.id] ?? 2;
+
+    if (availableStock <= 0) return; // out of stock, do nothing (button disabled)
+
+    if (currentQty >= 2) {
+      alert(`You can only select up to 2 packets of "${ingredient.name}"`);
+      return;
+    }
+
+    setSelectedIngredients((prev) => ({
+      ...prev,
+      [ingredient.id]: currentQty + 1,
+    }));
+
+    // Deduct stock
+    setStock((prev) => ({
+      ...prev,
+      [ingredient.id]: (prev[ingredient.id] ?? 2) - 1,
+    }));
+  };
+
+  const handleRefill = (ingredient: Ingredient) => {
+    setRefillTarget(ingredient);
+  };
+
+  const confirmRefill = () => {
+    if (!refillTarget) return;
+    setStock((prev) => ({ ...prev, [refillTarget.id]: 2 }));
+    // Also reset selection for this ingredient if any
     setSelectedIngredients((prev) => {
-      const currentQty = prev[ingredientId] || 0;
-      if (currentQty >= 2) {
-        alert(`Maximum 2 packets of "${ingredientName}" already selected.`);
-        return prev;
-      }
-      return { ...prev, [ingredientId]: currentQty + 1 };
+      const next = { ...prev };
+      delete next[refillTarget.id];
+      return next;
     });
+    setRefillTarget(null);
   };
 
   const calculateTotalPrice = () => {
@@ -374,38 +146,64 @@ const FoodDispensingSystem: React.FC = () => {
 
   const addToCart = () => {
     if (!selectedFood || Object.keys(selectedIngredients).length === 0) return;
+
     const selectedIngredientsData = Object.entries(selectedIngredients).flatMap(([id, qty]) => {
       const ingredient = selectedFood.ingredients.find((ing) => ing.id === id)!;
-      return Array.from({ length: qty }, () => ({ id: ingredient.id, name: ingredient.name, price: ingredient.price }));
+      return Array.from({ length: qty }, () => ({
+        id: ingredient.id,
+        name: ingredient.name,
+        price: ingredient.price,
+      }));
     });
-    setCart((prev) => [...prev, {
-      foodId: selectedFood.id, foodName: selectedFood.name,
-      selectedIngredients: selectedIngredientsData, quantity: 1, totalPrice: calculateTotalPrice(),
-    }]);
+
+    const cartItem: CartItem = {
+      foodId: selectedFood.id,
+      foodName: selectedFood.name,
+      selectedIngredients: selectedIngredientsData,
+      quantity: 1,
+      totalPrice: calculateTotalPrice(),
+    };
+
+    setCart((prev) => [...prev, cartItem]);
     setSelectedFood(null);
     setSelectedIngredients({});
   };
 
-  const removeFromCart = (index: number) => setCart((prev) => prev.filter((_, i) => i !== index));
+  const removeFromCart = (index: number) => {
+    setCart((prev) => prev.filter((_, i) => i !== index));
+  };
 
   const updateQuantity = (index: number, newQuantity: number) => {
     if (newQuantity <= 0) { removeFromCart(index); return; }
-    setCart((prev) => prev.map((item, i) => i === index ? { ...item, quantity: newQuantity } : item));
+    setCart((prev) =>
+      prev.map((item, i) => i === index ? { ...item, quantity: newQuantity } : item)
+    );
   };
 
-  const getTotalCartValue = () => cart.reduce((sum, item) => sum + item.totalPrice * item.quantity, 0);
+  const getTotalCartValue = () =>
+    cart.reduce((sum, item) => sum + item.totalPrice * item.quantity, 0);
+
+  const handlePayment = async () => setShowPayment(true);
+
+  const processRazorpayPayment = async () => {
+    startPayment();
+    setShowPayment(false);
+  };
 
   const groupIngredientsByCategory = (ingredients: Ingredient[]) =>
     ingredients.reduce((groups, ingredient) => {
-      if (!groups[ingredient.category]) groups[ingredient.category] = [];
-      groups[ingredient.category].push(ingredient);
+      const category = ingredient.category;
+      if (!groups[category]) groups[category] = [];
+      groups[category].push(ingredient);
       return groups;
     }, {} as Record<string, Ingredient[]>);
 
   const getIngredientSummary = (ings: { name: string }[]) => {
     const counts: Record<string, number> = {};
     ings.forEach((i) => { counts[i.name] = (counts[i.name] || 0) + 1; });
-    return Object.entries(counts).map(([name, qty]) => qty > 1 ? `${name} ×${qty}` : name).join(", ");
+    return Object.entries(counts)
+      .map(([name, qty]) => (qty > 1 ? `${name} ×${qty}` : name))
+      .join(", ");
   };
 
   const triggerMotors = async () => {
@@ -442,208 +240,381 @@ const FoodDispensingSystem: React.FC = () => {
         });
         if (verify?.data?.success) {
           await triggerMotors();
-          alert("Order placed successfully");
+          alert("Order Placed Successfully");
           setCart([]);
         } else {
-          alert("Payment verification failed");
+          alert("❌ Payment verification failed");
         }
       },
       prefill: { name: "Shyam", email: "shyam@example.com", contact: "9876543210" },
-      theme: { color: "#C8813A" },
+      theme: { color: "#000000" },
     };
     const rzp1 = new window.Razorpay(options);
     rzp1.open();
   };
 
-  const handlePayment = async () => setShowPayment(true);
-  const processRazorpayPayment = async () => { startPayment(); setShowPayment(false); };
-
   return (
-    <>
-      <style>{styles}</style>
-      <div className="fds">
+    <div className="min-h-screen bg-white text-black">
 
-        {/* HEADER */}
-        <header className="fds-header">
-          <div className="fds-logo">
-            <div className="fds-logo-icon">
-              <ChefHat size={16} color="white" />
-            </div>
-            <span className="fds-logo-text">Smart Food Dispensing System</span>
+      {/* ── HEADER ── */}
+      <header className="bg-black text-white sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <ChefHat className="w-6 h-6" />
+            <span className="text-lg font-bold tracking-tight">Food Dispensing System</span>
           </div>
           {cart.length > 0 && (
-            <div className="fds-cart-pill">
-              <div className="fds-cart-badge">{cart.length}</div>
-              <span className="fds-cart-lbl">Cart</span>
-              <span className="fds-cart-amt">₹{getTotalCartValue()}</span>
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <ShoppingCart className="w-5 h-5" />
+                <span className="absolute -top-2 -right-2 bg-white text-black text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                  {cart.length}
+                </span>
+              </div>
+              <span className="text-sm font-semibold">₹{getTotalCartValue()}</span>
             </div>
           )}
-        </header>
+        </div>
+      </header>
 
-        <main className="fds-main">
-          {!selectedFood ? (
-            <>
-              {/* MENU */}
-              <p className="fds-eyebrow">Today's Menu</p>
-              <h2 className="fds-h1">What are you<br />craving today?</h2>
-              <p className="fds-subtitle">Pick a dish and build your own spice blend.</p>
+      <div className="max-w-6xl mx-auto px-6 py-10">
 
-              <div className="fds-food-grid">
-                {foods.map((food) => (
-                  <div key={food.id} className="fds-food-card" onClick={() => setSelectedFood(food)}>
-                    <span className="fds-food-emoji">{food.image}</span>
-                    <span className="fds-food-tag">{food.tag}</span>
-                    <h3 className="fds-food-name">{food.name}</h3>
-                    <p className="fds-food-desc">{food.description}</p>
-                    <div className="fds-food-cta">Customize →</div>
-                  </div>
-                ))}
-              </div>
+        {/* ══════════════ MENU PAGE ══════════════ */}
+        {!selectedFood ? (
+          <>
+            <div className="mb-10">
+              <h2 className="text-3xl font-bold mb-1">Select Your Food</h2>
+              <p className="text-gray-500 text-sm">Choose a dish and customize your spice blend.</p>
+            </div>
 
-              {/* CART */}
-              {cart.length > 0 && (
-                <div className="fds-cart-block">
-                  <div className="fds-cart-block-hdr">
-                    <span className="fds-cart-block-title">Your Order</span>
-                    <span className="fds-cart-block-count">{cart.length} item{cart.length > 1 ? "s" : ""}</span>
+            {/* Food cards */}
+            <div className="grid md:grid-cols-3 gap-5 mb-10">
+              {foods.map((food) => (
+                <button
+                  key={food.id}
+                  onClick={() => setSelectedFood(food)}
+                  className="text-left border border-gray-200 rounded-2xl p-6 hover:border-black hover:shadow-md transition-all duration-200 group bg-white"
+                >
+                  <span className="text-5xl block mb-4">{food.image}</span>
+                  <h3 className="text-lg font-bold mb-1 group-hover:underline underline-offset-2">{food.name}</h3>
+                  <p className="text-gray-500 text-sm leading-relaxed">{food.description}</p>
+                  <div className="mt-4 text-xs font-semibold text-gray-400 group-hover:text-black transition-colors">
+                    Customize →
                   </div>
-                  <div className="fds-cart-rows">
-                    {cart.map((item, index) => (
-                      <div key={index} className="fds-cart-row">
-                        <div style={{ flex: 1 }}>
-                          <div className="fds-cart-row-name">{item.foodName}</div>
-                          <div className="fds-cart-row-ings">{getIngredientSummary(item.selectedIngredients)}</div>
-                          <div className="fds-cart-row-unit">₹{item.totalPrice} per serving</div>
-                        </div>
-                        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                          <div className="fds-qty-wrap">
-                            <button className="fds-qty-btn" onClick={() => updateQuantity(index, item.quantity - 1)}><Minus size={12} /></button>
-                            <span className="fds-qty-num">{item.quantity}</span>
-                            <button className="fds-qty-btn" onClick={() => updateQuantity(index, item.quantity + 1)}><Plus size={12} /></button>
-                          </div>
-                          <span className="fds-row-total">₹{item.totalPrice * item.quantity}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="fds-cart-block-ftr">
-                    <div>
-                      <div className="fds-total-lbl">Total amount</div>
-                      <div className="fds-total-amt">₹{getTotalCartValue()}</div>
-                    </div>
-                    <button className="fds-btn-amber" onClick={handlePayment}>
-                      <CreditCard size={15} />
-                      Proceed to Pay
-                    </button>
-                  </div>
-                </div>
-              )}
-            </>
-          ) : (
-            /* CUSTOMIZE */
-            <div>
-              <button className="fds-btn-ghost" style={{ marginBottom: 28 }} onClick={() => { setSelectedFood(null); setSelectedIngredients({}); }}>
-                <ArrowLeft size={14} /> Back to menu
-              </button>
+                </button>
+              ))}
+            </div>
 
-              <div className="fds-cust-layout">
-                {/* SIDEBAR */}
-                <div className="fds-sidebar">
-                  <span className="fds-sb-emoji">{selectedFood.image}</span>
-                  <h2 className="fds-sb-title">{selectedFood.name}</h2>
-                  <p className="fds-sb-desc">{selectedFood.description}</p>
-                  <div className="fds-price-box">
-                    <div className="fds-price-lbl">Your total</div>
-                    <div className="fds-price-val">₹{calculateTotalPrice()}</div>
-                  </div>
-                  <p className="fds-hint">Tap once → 1 packet · Tap again → 2 packets<br />Max 2 packets per ingredient</p>
-                  <button
-                    className="fds-btn-dark"
-                    style={{ width: "100%", justifyContent: "center" }}
-                    onClick={addToCart}
-                    disabled={Object.keys(selectedIngredients).length === 0}
-                  >
-                    <Plus size={15} /> Add to Order
-                  </button>
+            {/* Cart */}
+            {cart.length > 0 && (
+              <div className="border border-gray-200 rounded-2xl overflow-hidden">
+                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                  <h3 className="font-bold text-lg">Your Cart</h3>
+                  <span className="text-sm text-gray-400">{cart.length} item{cart.length > 1 ? "s" : ""}</span>
                 </div>
 
-                {/* INGREDIENTS */}
-                <div>
-                  <p className="fds-eyebrow" style={{ marginBottom: 6 }}>Customize</p>
-                  <h3 className="fds-h1" style={{ fontSize: 28, marginBottom: 6 }}>Pick your spice packets</h3>
-                  <p style={{ fontSize: 13, color: "var(--muted)", marginBottom: 32 }}>Select up to 2 packets of each ingredient.</p>
-
-                  {Object.entries(groupIngredientsByCategory(selectedFood.ingredients)).map(([category, ingredients]) => (
-                    <div key={category}>
-                      <div className="fds-cat-lbl">{category}</div>
-                      <div className="fds-ing-grid">
-                        {ingredients.map((ingredient) => {
-                          const qty = selectedIngredients[ingredient.id] || 0;
-                          const isSelected = qty > 0;
-                          const isMaxed = qty >= 2;
-                          return (
-                            <div
-                              key={ingredient.id}
-                              className={`fds-ing-card${isMaxed ? " max" : isSelected ? " sel" : ""}`}
-                              onClick={() => handleIngredientToggle(ingredient.id, ingredient.name)}
-                            >
-                              <div className="fds-ing-top">
-                                <div className="fds-ing-name">{ingredient.name}</div>
-                                <div className="fds-ing-bubble">{qty > 0 ? qty : ""}</div>
-                              </div>
-                              <div className="fds-ing-price">₹{ingredient.price} / packet</div>
-                              {isSelected && (
-                                <div className="fds-ing-status">
-                                  {isMaxed ? "✓ Max selected" : "Tap for 2nd packet"}
-                                </div>
-                              )}
-                            </div>
-                          );
-                        })}
+                <div className="divide-y divide-gray-100">
+                  {cart.map((item, index) => (
+                    <div key={index} className="flex items-center gap-4 px-6 py-4">
+                      <div className="flex-1">
+                        <p className="font-semibold text-sm">{item.foodName}</p>
+                        <p className="text-xs text-gray-400 mt-0.5">{getIngredientSummary(item.selectedIngredients)}</p>
+                        <p className="text-xs font-medium text-gray-600 mt-0.5">₹{item.totalPrice} per serving</p>
                       </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => updateQuantity(index, item.quantity - 1)}
+                          className="w-7 h-7 border border-gray-200 rounded-lg flex items-center justify-center hover:bg-black hover:text-white hover:border-black transition-colors"
+                        >
+                          <Minus className="w-3 h-3" />
+                        </button>
+                        <span className="w-6 text-center text-sm font-bold">{item.quantity}</span>
+                        <button
+                          onClick={() => updateQuantity(index, item.quantity + 1)}
+                          className="w-7 h-7 border border-gray-200 rounded-lg flex items-center justify-center hover:bg-black hover:text-white hover:border-black transition-colors"
+                        >
+                          <Plus className="w-3 h-3" />
+                        </button>
+                      </div>
+                      <span className="font-bold text-sm w-16 text-right">₹{item.totalPrice * item.quantity}</span>
                     </div>
                   ))}
                 </div>
-              </div>
-            </div>
-          )}
-        </main>
 
-        <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="afterInteractive" />
-
-        {/* PAYMENT MODAL */}
-        {showPayment && (
-          <div className="fds-overlay">
-            <div className="fds-modal">
-              <div className="fds-modal-hdr">
-                <h3 className="fds-modal-title">Confirm Order</h3>
-                <button className="fds-modal-close" onClick={() => setShowPayment(false)}><X size={14} /></button>
-              </div>
-              {cart.map((item, index) => (
-                <div key={index} className="fds-modal-row">
+                <div className="flex items-center justify-between px-6 py-4 bg-gray-50 border-t border-gray-100">
                   <div>
-                    <div className="fds-modal-row-name">{item.foodName}</div>
-                    <div className="fds-modal-row-sub">{getIngredientSummary(item.selectedIngredients)} · qty {item.quantity}</div>
+                    <p className="text-xs text-gray-400 mb-0.5">Total amount</p>
+                    <p className="text-2xl font-bold">₹{getTotalCartValue()}</p>
                   </div>
-                  <div className="fds-modal-row-price">₹{item.totalPrice * item.quantity}</div>
+                  <button
+                    onClick={handlePayment}
+                    className="bg-black text-white px-5 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 hover:bg-gray-900 transition-colors"
+                  >
+                    <CreditCard className="w-4 h-4" />
+                    Proceed to Pay
+                  </button>
                 </div>
-              ))}
-              <div className="fds-modal-divider" />
-              <div className="fds-modal-total">
-                <span className="fds-modal-total-lbl">Total payable</span>
-                <span className="fds-modal-total-amt">₹{getTotalCartValue()}</span>
               </div>
-              <div className="fds-modal-actions">
-                <button className="fds-btn-outline" onClick={() => setShowPayment(false)}>Cancel</button>
-                <button className="fds-btn-amber" style={{ flex: 2, justifyContent: "center" }} onClick={processRazorpayPayment}>
-                  <CreditCard size={15} /> Pay with Razorpay
+            )}
+          </>
+        ) : (
+
+          /* ══════════════ CUSTOMIZE PAGE ══════════════ */
+          <div>
+            <button
+              onClick={() => { setSelectedFood(null); setSelectedIngredients({}); }}
+              className="flex items-center gap-2 text-sm font-medium border border-gray-200 px-4 py-2 rounded-xl mb-8 hover:bg-black hover:text-white hover:border-black transition-all"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to Menu
+            </button>
+
+            <div className="grid lg:grid-cols-[280px_1fr] gap-8">
+
+              {/* ── SIDEBAR ── */}
+              <div className="border border-gray-200 rounded-2xl p-6 sticky top-20 self-start">
+                <span className="text-6xl block mb-4">{selectedFood.image}</span>
+                <h2 className="text-xl font-bold mb-1">{selectedFood.name}</h2>
+                <p className="text-sm text-gray-500 leading-relaxed mb-5">{selectedFood.description}</p>
+
+                <div className="bg-gray-50 rounded-xl p-4 mb-5">
+                  <p className="text-xs text-gray-400 mb-1 uppercase tracking-wider font-semibold">Your Total</p>
+                  <p className="text-3xl font-bold">₹{calculateTotalPrice()}</p>
+                </div>
+
+                <p className="text-xs text-gray-400 text-center mb-4 leading-relaxed">
+                  Tap once for 1 packet · Tap again for 2nd packet<br />Max 2 packets per ingredient
+                </p>
+
+                <button
+                  onClick={addToCart}
+                  disabled={Object.keys(selectedIngredients).length === 0}
+                  className="w-full bg-black text-white py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 hover:bg-gray-900 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add to Cart
                 </button>
+              </div>
+
+              {/* ── INGREDIENTS ── */}
+              <div>
+                <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-1">Step 2</p>
+                <h3 className="text-2xl font-bold mb-1">Pick your spice packets</h3>
+                <p className="text-sm text-gray-400 mb-8">Select up to 2 packets per ingredient.</p>
+
+                {Object.entries(groupIngredientsByCategory(selectedFood.ingredients)).map(([category, ingredients]) => (
+                  <div key={category} className="mb-8">
+                    <p className="text-xs font-bold uppercase tracking-widest text-gray-400 border-b border-gray-100 pb-2 mb-4">
+                      {category}
+                    </p>
+
+                    <div className="grid sm:grid-cols-2 gap-3">
+                      {ingredients.map((ingredient) => {
+                        const qty = selectedIngredients[ingredient.id] || 0;
+                        const availableStock = stock[ingredient.id] ?? 2;
+                        const isOutOfStock = availableStock <= 0;
+                        const isMaxed = qty >= 2;
+                        const isSelected = qty > 0;
+
+                        return (
+                          <div
+                            key={ingredient.id}
+                            className={`border rounded-2xl p-4 transition-all duration-200 ${
+                              isOutOfStock
+                                ? "border-gray-200 bg-gray-50 opacity-80"
+                                : isMaxed
+                                ? "border-black bg-black text-white"
+                                : isSelected
+                                ? "border-black bg-white"
+                                : "border-gray-200 bg-white hover:border-gray-400"
+                            }`}
+                          >
+                            {isOutOfStock ? (
+                              /* ── OUT OF STOCK STATE ── */
+                              <div>
+                                <div className="flex items-start justify-between mb-3">
+                                  <div>
+                                    <p className="font-semibold text-sm text-gray-400">{ingredient.name}</p>
+                                    <p className="text-xs text-gray-400 mt-0.5">₹{ingredient.price} / packet</p>
+                                  </div>
+                                  <div className="flex items-center gap-1 bg-red-50 border border-red-200 rounded-lg px-2 py-1">
+                                    <PackageX className="w-3 h-3 text-red-500" />
+                                    <span className="text-[10px] font-bold text-red-500 uppercase tracking-wide">Out of Stock</span>
+                                  </div>
+                                </div>
+                                <button
+                                  onClick={() => handleRefill(ingredient)}
+                                  className="w-full flex items-center justify-center gap-2 bg-black text-white text-xs font-bold py-2 rounded-xl hover:bg-gray-800 transition-colors"
+                                >
+                                  <RefreshCw className="w-3 h-3" />
+                                  Refill Stock
+                                </button>
+                              </div>
+                            ) : (
+                              /* ── NORMAL / SELECTED STATE ── */
+                              <button
+                                className="w-full text-left"
+                                onClick={() => handleIngredientToggle(ingredient)}
+                              >
+                                <div className="flex items-start justify-between">
+                                  <div>
+                                    <p className={`font-semibold text-sm ${isMaxed ? "text-white" : "text-black"}`}>
+                                      {ingredient.name}
+                                    </p>
+                                    <p className={`text-xs mt-0.5 ${isMaxed ? "text-gray-300" : "text-gray-400"}`}>
+                                      ₹{ingredient.price} / packet
+                                    </p>
+                                  </div>
+
+                                  {/* Packet counter bubble */}
+                                  <div
+                                    className={`w-7 h-7 rounded-full border-2 flex items-center justify-center text-xs font-bold transition-all ${
+                                      isMaxed
+                                        ? "border-white bg-white text-black"
+                                        : isSelected
+                                        ? "border-black bg-black text-white"
+                                        : "border-gray-300 bg-white text-gray-400"
+                                    }`}
+                                  >
+                                    {qty > 0 ? qty : ""}
+                                  </div>
+                                </div>
+
+                                {/* Status text */}
+                                <div className="mt-2.5">
+                                  {isMaxed ? (
+                                    <p className="text-[11px] font-semibold text-gray-300">
+                                      ✓ 2 packets selected · max reached
+                                    </p>
+                                  ) : isSelected ? (
+                                    <p className="text-[11px] font-semibold text-gray-500">
+                                      Tap again for 2nd packet
+                                    </p>
+                                  ) : (
+                                    <p className="text-[11px] text-gray-400">
+                                      {availableStock} packet{availableStock !== 1 ? "s" : ""} available
+                                    </p>
+                                  )}
+                                </div>
+                              </button>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
         )}
       </div>
-    </>
+
+      <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="afterInteractive" />
+
+      {/* ══════════════ PAYMENT MODAL ══════════════ */}
+      {showPayment && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-bold">Confirm Order</h3>
+              <button
+                onClick={() => setShowPayment(false)}
+                className="w-8 h-8 border border-gray-200 rounded-xl flex items-center justify-center hover:bg-black hover:text-white hover:border-black transition-all"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="divide-y divide-gray-100 mb-4">
+              {cart.map((item, index) => (
+                <div key={index} className="flex items-center justify-between py-3">
+                  <div>
+                    <p className="text-sm font-semibold">{item.foodName}</p>
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      {getIngredientSummary(item.selectedIngredients)} · qty {item.quantity}
+                    </p>
+                  </div>
+                  <p className="font-bold text-sm">₹{item.totalPrice * item.quantity}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="border-t border-gray-200 pt-4 mb-6 flex items-center justify-between">
+              <p className="text-sm text-gray-500">Total payable</p>
+              <p className="text-2xl font-bold">₹{getTotalCartValue()}</p>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowPayment(false)}
+                className="flex-1 border border-gray-200 rounded-xl py-3 text-sm font-semibold hover:border-black transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={processRazorpayPayment}
+                className="flex-[2] bg-black text-white rounded-xl py-3 text-sm font-semibold flex items-center justify-center gap-2 hover:bg-gray-900 transition-colors"
+              >
+                <CreditCard className="w-4 h-4" />
+                Pay with Razorpay
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ══════════════ REFILL MODAL ══════════════ */}
+      {refillTarget && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-8 max-w-sm w-full shadow-2xl">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-bold">Refill Stock</h3>
+              <button
+                onClick={() => setRefillTarget(null)}
+                className="w-8 h-8 border border-gray-200 rounded-xl flex items-center justify-center hover:bg-black hover:text-white hover:border-black transition-all"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="bg-gray-50 border border-gray-200 rounded-2xl p-5 mb-6 text-center">
+              <AlertTriangle className="w-8 h-8 mx-auto mb-3 text-gray-400" />
+              <p className="font-bold text-base mb-1">{refillTarget.name}</p>
+              <p className="text-sm text-gray-500">
+                This ingredient is out of stock.<br />
+                Refilling will restore <span className="font-semibold text-black">2 packets</span>.
+              </p>
+            </div>
+
+            <div className="border border-gray-100 rounded-xl px-4 py-3 flex items-center justify-between mb-6">
+              <span className="text-sm text-gray-500">Current stock</span>
+              <span className="text-sm font-bold text-red-500">0 packets</span>
+            </div>
+            <div className="border border-gray-100 rounded-xl px-4 py-3 flex items-center justify-between mb-6">
+              <span className="text-sm text-gray-500">After refill</span>
+              <span className="text-sm font-bold text-black">2 packets</span>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setRefillTarget(null)}
+                className="flex-1 border border-gray-200 rounded-xl py-3 text-sm font-semibold hover:border-black transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmRefill}
+                className="flex-[2] bg-black text-white rounded-xl py-3 text-sm font-bold flex items-center justify-center gap-2 hover:bg-gray-900 transition-colors"
+              >
+                <RefreshCw className="w-4 h-4" />
+                Confirm Refill
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 
